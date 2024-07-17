@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../models/todo_model.dart';
+import '../providers/todo_provider.dart';
 
 class SecondPage extends StatelessWidget {
   final String? text;
@@ -49,7 +53,7 @@ class SecondPage extends StatelessWidget {
         children: [
           DrawerHeader(
             child: Text(
-              "Exercise 5: Menu, Routes, and Navigation",
+              "Exercise 7: Data Persistence using Firebase",
               style: TextStyle(
                 color: Color(0xFF10044c), //drawer header text color
                 fontSize: 18,
@@ -61,6 +65,18 @@ class SecondPage extends StatelessWidget {
           ),
           ListTile(
             title: Text(
+              "Slambook",
+              style: TextStyle(
+                color: Color(0xFF10044c), //drawer list tile text color
+              ),
+            ),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const SecondPage()));
+            },
+          ),
+          ListTile(
+            title: Text(
               "Friends",
               style: TextStyle(
                 color: Color(0xFF10044c), //drawer list tile text color
@@ -68,20 +84,15 @@ class SecondPage extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, "/first"); //navigation to 1st route
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
           ListTile(
-            title: Text(
-              "Slambook",
-              style: TextStyle(
-                color: Color(0xFF10044c), //drawer list tile text color
-              ),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, "/second",
-                  arguments: text); //navigation to second route with arguments
+            title: const Text('Logout'),
+            onTap: () async {
+              //CHANGES
+              // await context.read<UserAuthProvider>().signOut();
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],
@@ -168,6 +179,26 @@ class _FormSampleState extends State<FormSample> {
         Motto: ${radioMotto ?? 'Not selected'}
       ''';
     });
+  }
+
+  // Add this method to create a Todo object from the form fields and save it to Firestore
+  void saveToFirestore() {
+    if (formkey.currentState!.validate()) {
+      formkey.currentState?.save();
+      Todo newTodo = Todo(
+        name: nameController.text,
+        nickname: nicknameController.text,
+        age: int.parse(ageController.text),
+        isSingle: isSingle,
+        happinessLevel: happinessLevel,
+        radioMotto: radioMotto ?? '',
+        superpower: dropdownvalue,
+        completed: false,
+      );
+      context.read<TodoListProvider>().addTodo(newTodo);
+      resetForm();
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -388,13 +419,7 @@ class _FormSampleState extends State<FormSample> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   OutlinedButton(
-                    onPressed: () {
-                      if (formkey.currentState!.validate()) {
-                        formkey.currentState?.save();
-                        updatedSummary(); //update summary on submit
-                        Navigator.pop(context, summaryText);
-                      }
-                    },
+                    onPressed: saveToFirestore,
                     style: ButtonStyle(
                       foregroundColor: WidgetStateProperty.all<Color>(
                           Colors.white), //text color

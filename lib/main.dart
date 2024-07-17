@@ -1,27 +1,38 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'firstpage_friends.dart';
-import 'secondpage_slambook.dart';
+import 'package:week4_flutter_app/firebase_options.dart';
+import 'package:week4_flutter_app/providers/todo_provider.dart';
 
-void main() {
-  runApp(MyApp());
+import 'package:provider/provider.dart';
+import 'package:week4_flutter_app/screens/secondpage_slambook.dart';
+import 'screens/todo_page.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: ((context) => TodoListProvider())),
+        // ChangeNotifierProvider(create: ((context) => UserAuthProvider())),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  //static list to store data from form
-  static List<String> formdata = [];
+  const MyApp({super.key});
 
+  //root of application
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Slambook App', //application title
-      initialRoute: '/first', //initial route when the application starts
+      initialRoute: '/', //initial route when the application starts
       routes: {
-        '/first': (context) =>
-            FirstPage(formdata: formdata), //pass formdata to FirstPage
-        '/second': (context) => SecondPage(
-              text: ModalRoute.of(context)?.settings.arguments
-                  as String?, //pass arguments to SecondPage
-            ),
+        '/': (context) => const TodoPage(),
+        '/slambook': (context) => const SecondPage(),
       },
     );
   }
