@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:week4_flutter_app/firebase_options.dart';
-import 'package:week4_flutter_app/providers/todo_provider.dart';
 
 import 'package:provider/provider.dart';
-import 'package:week4_flutter_app/screens/secondpage_slambook.dart';
+import 'firebase_options.dart';
+import 'providers/auth_provider.dart';
+import 'providers/todo_provider.dart';
+import 'screens/home_page.dart';
+import 'screens/secondpage_slambook.dart';
 import 'screens/todo_page.dart';
 
 Future<void> main() async {
@@ -14,7 +16,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: ((context) => TodoListProvider())),
-        // ChangeNotifierProvider(create: ((context) => UserAuthProvider())),
+        ChangeNotifierProvider(create: ((context) => UserAuthProvider())),
       ],
       child: const MyApp(),
     ),
@@ -31,7 +33,8 @@ class MyApp extends StatelessWidget {
       title: 'Slambook App', //application title
       initialRoute: '/', //initial route when the application starts
       routes: {
-        '/': (context) => const TodoPage(),
+        '/': (context) => const HomePage(),
+        '/todo': (context) => const TodoPage(),
         '/slambook': (context) => const SecondPage(),
       },
     );

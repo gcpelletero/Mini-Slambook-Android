@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/todo_model.dart';
+import '../providers/auth_provider.dart';
 import '../providers/todo_provider.dart';
 
 class SecondPage extends StatelessWidget {
@@ -84,15 +85,15 @@ class SecondPage extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/');
+              Navigator.pushReplacementNamed(context, '/todo');
             },
           ),
           ListTile(
             title: const Text('Logout'),
             onTap: () async {
               //CHANGES
-              // await context.read<UserAuthProvider>().signOut();
-              Navigator.pushReplacementNamed(context, '/login');
+              await context.read<UserAuthProvider>().signOut();
+              Navigator.pop(context);
             },
           ),
         ],

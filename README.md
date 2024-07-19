@@ -1,4 +1,4 @@
-# Week 8: Data Persistence Using Firebase
+# final mini project
 
 **Name:** Gabrielle Pelletero <br/>
 **Section:** U-2L <br/>

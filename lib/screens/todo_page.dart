@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:week4_flutter_app/screens/frienddetails_page.dart';
-import 'package:week4_flutter_app/screens/secondpage_slambook.dart';
 import '../models/todo_model.dart';
+import '../providers/auth_provider.dart';
 import '../providers/todo_provider.dart';
+import 'frienddetails_page.dart';
 import 'modal_todo.dart';
+import 'secondpage_slambook.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
@@ -139,15 +140,15 @@ class _TodoPageState extends State<TodoPage> {
           title: const Text('Friends'),
           onTap: () {
             Navigator.pop(context);
-            Navigator.pushNamed(context, "/");
+            Navigator.pushNamed(context, "/todo");
           },
         ),
         ListTile(
           title: const Text('Logout'),
           onTap: () async {
             //CHANGES
-            // await context.read<UserAuthProvider>().signOut();
-            Navigator.pushReplacementNamed(context, '/login');
+            await context.read<UserAuthProvider>().signOut();
+            Navigator.pop(context);
           },
         ),
       ]));

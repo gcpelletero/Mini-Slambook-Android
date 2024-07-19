@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:week4_flutter_app/api/firebase_todo_api.dart';
+import '../api/firebase_todo_api.dart';
 import '../models/todo_model.dart';
 
 class TodoListProvider with ChangeNotifier {
