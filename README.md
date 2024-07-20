@@ -18,5 +18,6 @@ Describe your challenges here
 
 ## References
 
-- link to the reference
-- another link
+- https://stackoverflow.com/questions/35120939/username-authentication-instead-of-email/35121112#35121112
+- https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories
+- https://gist.github.com/gunjanpatel/18f9e4d1eb609597c50c2118e416e6a6
