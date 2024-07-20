@@ -72,8 +72,7 @@ class SecondPage extends StatelessWidget {
               ),
             ),
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const SecondPage()));
+              Navigator.pop(context); // Close the drawer
             },
           ),
           ListTile(
@@ -84,18 +83,17 @@ class SecondPage extends StatelessWidget {
               ),
             ),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/todo');
+              Navigator.pushNamed(context, '/todo');
             },
           ),
-          ListTile(
-            title: const Text('Logout'),
-            onTap: () async {
-              //CHANGES
-              await context.read<UserAuthProvider>().signOut();
-              Navigator.pop(context);
-            },
-          ),
+          // ListTile(
+          //   title: const Text('Logout'),
+          //   onTap: () async {
+          //     //CHANGES
+          //     // await context.read<UserAuthProvider>().signOut();
+          //     // Navigator.pushReplacementNamed(context, '/login');
+          //   },
+          // ),
         ],
       ),
     );
@@ -113,7 +111,7 @@ class _FormSampleState extends State<FormSample> {
   String? name;
   String? nickname;
   bool isSingle = false;
-  double happinessLevel = 0;
+  int happinessLevel = 0;
   String? radioMotto;
 
   String summaryText = ''; //holds the summary text
@@ -328,14 +326,14 @@ class _FormSampleState extends State<FormSample> {
                     textAlign: TextAlign.center,
                   ),
                   Slider(
-                    value: happinessLevel,
+                    value: happinessLevel.toDouble(),
                     min: 0,
                     max: 10,
                     divisions: 10,
                     label: happinessLevel.toInt().toString(),
                     onChanged: (double value) {
                       setState(() {
-                        happinessLevel = value;
+                        happinessLevel = value.toInt();
                       });
                     },
                     activeColor: Color(0xFF10044c), //slider active color here

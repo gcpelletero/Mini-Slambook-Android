@@ -139,16 +139,15 @@ class _TodoPageState extends State<TodoPage> {
         ListTile(
           title: const Text('Friends'),
           onTap: () {
-            Navigator.pop(context);
-            Navigator.pushNamed(context, "/todo");
+            Navigator.pop(context); // Close the drawer
           },
         ),
         ListTile(
           title: const Text('Logout'),
           onTap: () async {
-            //CHANGES
             await context.read<UserAuthProvider>().signOut();
-            Navigator.pop(context);
+            Navigator.pushReplacementNamed(
+                context, '/login'); // Navigate to login page
           },
         ),
       ]));

@@ -20,7 +20,7 @@ class _TodoModalState extends State<TodoModal> {
   late TextEditingController mottoController;
   String dropdownValue = "Makalipad";
   bool isSingle = false;
-  double happinessLevel = 0;
+  int happinessLevel = 0;
   String? radioMotto;
 
   final List<String> _motto = [
@@ -181,14 +181,14 @@ class _TodoModalState extends State<TodoModal> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Slider(
-              value: happinessLevel,
+              value: happinessLevel.toDouble(),
               min: 0,
               max: 10,
               divisions: 10,
               label: happinessLevel.round().toString(),
               onChanged: (double value) {
                 setState(() {
-                  happinessLevel = value;
+                  happinessLevel = value.toInt();
                 });
               },
               activeColor: Color(0xFF10044c),

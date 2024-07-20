@@ -6,7 +6,7 @@ class Todo {
   String nickname;
   int age;
   bool isSingle;
-  double happinessLevel;
+  int happinessLevel;
   String radioMotto;
   String superpower;
 

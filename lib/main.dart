@@ -6,7 +6,9 @@ import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/todo_provider.dart';
 import 'screens/home_page.dart';
+import 'screens/login.dart';
 import 'screens/secondpage_slambook.dart';
+import 'screens/signin_page.dart';
 import 'screens/todo_page.dart';
 
 Future<void> main() async {
@@ -36,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomePage(),
         '/todo': (context) => const TodoPage(),
         '/slambook': (context) => const SecondPage(),
+        '/login': (context) => const SignInPage(), // Add the login route here
       },
     );
   }
