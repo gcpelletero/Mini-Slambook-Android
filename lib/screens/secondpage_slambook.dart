@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/todo_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/todo_provider.dart';
+import 'qr_scanner_page.dart';
 
 class SecondPage extends StatelessWidget {
   final String? text;
@@ -44,6 +45,16 @@ class SecondPage extends StatelessWidget {
           ),
           const FormSample(), //formsample widget
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => QRScannerPage()),
+          );
+        },
+        child: Icon(Icons.qr_code_scanner),
+        backgroundColor: Color(0xFF10044c),
       ),
     );
   }
