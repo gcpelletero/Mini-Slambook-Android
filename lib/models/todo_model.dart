@@ -9,7 +9,7 @@ class Todo {
   int happinessLevel;
   String radioMotto;
   String superpower;
-
+  String? imageUrl;
   bool completed;
 
   Todo({
@@ -22,6 +22,7 @@ class Todo {
     required this.radioMotto,
     required this.superpower,
     required this.completed,
+    this.imageUrl,
   });
 
   factory Todo.fromJson(Map<String, dynamic> json) {
@@ -35,6 +36,7 @@ class Todo {
       radioMotto: json['radioMotto'],
       superpower: json['superpower'],
       completed: json['completed'],
+      imageUrl: json['imageUrl'],
     );
   }
 
@@ -54,6 +56,7 @@ class Todo {
       'radioMotto': todo.radioMotto,
       'superpower': todo.superpower,
       'completed': todo.completed,
+      'imageUrl': todo.imageUrl,
     };
   }
 }
