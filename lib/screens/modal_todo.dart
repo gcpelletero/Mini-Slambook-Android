@@ -232,7 +232,6 @@ class _TodoModalState extends State<TodoModal> {
                   happinessLevel: happinessLevel,
                   radioMotto: radioMotto ?? '',
                   superpower: dropdownValue,
-                  completed: false,
                 );
                 context.read<TodoListProvider>().addTodo(newTodo);
               } else if (widget.type == 'Edit' && widget.item != null) {
@@ -245,7 +244,6 @@ class _TodoModalState extends State<TodoModal> {
                   happinessLevel: happinessLevel,
                   radioMotto: radioMotto ?? '',
                   superpower: dropdownValue,
-                  completed: widget.item!.completed,
                 );
                 context.read<TodoListProvider>().editTodo(updatedTodo);
               }

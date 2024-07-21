@@ -27,3 +27,6 @@ Describe your challenges here
 - https://github.com/flutter/flutter/issues/137886#issuecomment-1815733887
 - https://www.geeksforgeeks.org/flutter-upload-images-on-firestore-storage/
 - https://stackoverflow.com/questions/71077073/the-problem-occurs-after-the-flutter-sdk-is-updated-how-can-i-fix-it
+- https://firebase.google.com/docs/android/setup?hl=en&authuser=0&_gl=1*1qqacms*_ga*MTk2MDYzNDk5MS4xNzIwNjU2OTM0*_ga_CW55HF8NVT*MTcyMTQ1MzIxNC4yOS4xLjE3MjE0NTM4MDcuNjAuMC4w#analytics-enabled
+- https://stackoverflow.com/questions/76886165/the-argument-type-qrimage-cant-be-assigned-to-the-parameter-type-widget
+- https://blog.flutterflow.io/qr-code-generator/

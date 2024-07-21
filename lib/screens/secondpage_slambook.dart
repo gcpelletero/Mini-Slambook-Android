@@ -192,7 +192,6 @@ class _FormSampleState extends State<FormSample> {
         happinessLevel: happinessLevel,
         radioMotto: radioMotto ?? '',
         superpower: dropdownvalue,
-        completed: false,
       );
       context.read<TodoListProvider>().addTodo(newTodo);
       resetForm();

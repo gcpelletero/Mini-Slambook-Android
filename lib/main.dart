@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Slambook App', //application title
+      title: 'Slambook', //application title
       initialRoute: '/', //initial route when the application starts
       routes: {
         '/': (context) => const HomePage(),

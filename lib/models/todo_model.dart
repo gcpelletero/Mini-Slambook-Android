@@ -10,7 +10,6 @@ class Todo {
   String radioMotto;
   String superpower;
   String? imageUrl;
-  bool completed;
 
   Todo({
     this.id,
@@ -21,7 +20,6 @@ class Todo {
     required this.happinessLevel,
     required this.radioMotto,
     required this.superpower,
-    required this.completed,
     this.imageUrl,
   });
 
@@ -35,7 +33,6 @@ class Todo {
       happinessLevel: json['happinessLevel'],
       radioMotto: json['radioMotto'],
       superpower: json['superpower'],
-      completed: json['completed'],
       imageUrl: json['imageUrl'],
     );
   }
@@ -55,7 +52,6 @@ class Todo {
       'happinessLevel': todo.happinessLevel,
       'radioMotto': todo.radioMotto,
       'superpower': todo.superpower,
-      'completed': todo.completed,
       'imageUrl': todo.imageUrl,
     };
   }
