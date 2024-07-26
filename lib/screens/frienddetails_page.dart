@@ -1,16 +1,16 @@
 import 'dart:io';
-import 'dart:convert'; //FOR JSON ENCODING
+import 'dart:convert'; //for JSON encoding
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:qr_flutter/qr_flutter.dart'; //FOR QR GENERATION
+import 'package:qr_flutter/qr_flutter.dart'; //for QR generation
+import 'package:week4_flutter_app/screens/todo_page.dart';
 import '../models/todo_model.dart';
 import '../providers/todo_provider.dart';
-import 'package:week4_flutter_app/screens/modal_todo.dart';
+import 'modal_todo.dart';
 
 class FriendDetailPage extends StatefulWidget {
   final Todo friend;
@@ -26,7 +26,8 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
   PermissionStatus permissionStatus = PermissionStatus.denied;
   File? imageFile;
   String? imageUrl;
-  bool _showQrCode = false; 
+  bool _showQrCode = false;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -57,6 +58,11 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
     });
   }
 
+  void _refreshPage() async {
+    await _loadImageUrl();
+    setState(() {}); //ensures UI updates
+  }
+
   Future<void> _takePicture() async {
     if (permissionStatus == PermissionStatus.granted) {
       final image = await ImagePicker().pickImage(source: ImageSource.camera);
@@ -65,6 +71,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
           imageFile = File(image.path);
         });
         await _uploadImage(imageFile!);
+        _refreshPage(); //refreshes after uploading image
       }
     } else {
       requestPermission();
@@ -78,6 +85,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
         imageFile = File(image.path);
       });
       await _uploadImage(imageFile!);
+      _refreshPage(); //refreshes after uploading image
     }
   }
 
@@ -126,113 +134,316 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
     return jsonEncode(data);
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      if (index == 0) {
+        _takePicture();
+      } else if (index == 1) {
+        _chooseFromGallery();
+      } else if (index == 2) {
+        setState(() {
+          _showQrCode = !_showQrCode;
+        });
+      } else if (index == 3) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => TodoModal(
+            type: 'Edit',
+            item: widget.friend,
+          ),
+        ).then((result) {
+          if (result == true) {
+            _refreshPage(); //refreshes to show updated image
+          }
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("${widget.friend.name}'s Details"),
-      ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: imageUrl == null
-                    ? CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.grey[300],
-                        child: Icon(Icons.person,
-                            size: 60, color: Colors.grey[700]),
-                      )
-                    : ClipOval(
-                        child: Image.network(
-                          imageUrl!,
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.cover,
+        child: Column(
+          children: [
+            //COVER PHOTO SECTION
+            Container(
+              color: pastelBlue, //background color of the cover photo
+              height: 200, //height of cover photo
+              width: double.infinity, //full width of screen
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // AppBar
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: AppBar(
+                      title: Text(
+                        "${widget.friend.name}'s details",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
                         ),
                       ),
-              ),
-              SizedBox(height: 20),
-              Text("Name: ${widget.friend.name}",
-                  style: TextStyle(fontSize: 18)),
-              SizedBox(height: 8),
-              Text("Nickname: ${widget.friend.nickname}",
-                  style: TextStyle(fontSize: 18)),
-              SizedBox(height: 8),
-              Text("Age: ${widget.friend.age}", style: TextStyle(fontSize: 18)),
-              SizedBox(height: 8),
-              Text("Motto: ${widget.friend.radioMotto}",
-                  style: TextStyle(fontSize: 18)),
-              SizedBox(height: 8),
-              Text("Superpower: ${widget.friend.superpower}",
-                  style: TextStyle(fontSize: 18)),
-              SizedBox(height: 8),
-              Text("Is Single: ${widget.friend.isSingle ? "Yes" : "No"}",
-                  style: TextStyle(fontSize: 18)),
-              SizedBox(height: 8),
-              Text("Happiness Level: ${widget.friend.happinessLevel}",
-                  style: TextStyle(fontSize: 18)),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final result = await showDialog(
-                      context: context,
-                      builder: (BuildContext context) => TodoModal(
-                        type: 'Edit',
-                        item: widget.friend,
-                      ),
-                    );
-                    if (result == true) {
-                      context.read<TodoListProvider>().fetchTodos();
-                    }
-                  },
-                  child: const Text("Edit Details"),
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _takePicture,
-                  child: const Text("Take Picture"),
-                ),
-              ),
-              SizedBox(height: 10),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _chooseFromGallery,
-                  child: const Text("Choose from Gallery"),
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _showQrCode = !_showQrCode;
-                    });
-                  },
-                  child:
-                      Text(_showQrCode ? "Hide QR Code" : "Generate QR Code"),
-                ),
-              ),
-              if (_showQrCode)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: QrImageView(
-                      data: _generateQrData(),
-                      version: QrVersions.auto,
-                      size: 200.0,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0, //remove shadow for seamless overlap
                     ),
                   ),
-                ),
-            ],
-          ),
+                  //PROFILE PICTURE
+                  Positioned(
+                    top: 130, //to overlap with the cover photo
+                    left: MediaQuery.of(context).size.width / 2 -
+                        80, //Center horizontally
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 160, //width of the container
+                          height: 160, //height of the container
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white, //border color
+                              width: 4, //border width
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 80, //radius
+                            backgroundColor: Colors.white,
+                            backgroundImage: imageUrl == null
+                                ? null
+                                : NetworkImage(imageUrl!),
+                            child: imageUrl == null
+                                ? Icon(Icons.person,
+                                    size: 80, color: Colors.grey[700])
+                                : null,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        //NAME DISPLAY
+                        Text(
+                          widget.friend.name,
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 10.0,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            //MAIN CONTENT BELOW
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 120),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30.0), //top padding
+                    child: Card(
+                      elevation: 5,
+                      child: Container(
+                        width: 400,
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                text: 'nickname: ',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: '${widget.friend.nickname}',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            RichText(
+                              text: TextSpan(
+                                text: 'age: ',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: '${widget.friend.age}',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            RichText(
+                              text: TextSpan(
+                                text: 'motto: ',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: '${widget.friend.radioMotto}',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            RichText(
+                              text: TextSpan(
+                                text: 'superpower: ',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: '${widget.friend.superpower}',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            RichText(
+                              text: TextSpan(
+                                text: 'single: ',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text:
+                                        '${widget.friend.isSingle ? "Yes" : "No"}',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            RichText(
+                              text: TextSpan(
+                                text: 'happiness level: ',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: '${widget.friend.happinessLevel}',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_showQrCode) SizedBox(height: 20),
+                  if (_showQrCode)
+                    Center(
+                      child: Card(
+                        elevation: 5,
+                        child: SizedBox(
+                          width: 400, //fixed width for the QR code container
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Center(
+                              child: QrImageView(
+                                data: _generateQrData(),
+                                version: QrVersions.auto,
+                                size: 200.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.camera_alt),
+            label: 'Take Picture',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.photo_library),
+            label: 'Gallery',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code),
+            label: 'QR Code',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit),
+            label: 'Edit Details',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Color(0xFF101444), //color for selected item
+        unselectedItemColor: Colors.grey, // color for unselected items
+        backgroundColor: Colors.white, //cackground color of  bottom bar
       ),
     );
   }

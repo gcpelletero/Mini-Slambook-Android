@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:week4_flutter_app/screens/todo_page.dart';
 import '../models/todo_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/todo_provider.dart';
@@ -13,37 +14,76 @@ class SecondPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UserAuthProvider authProvider = context.watch<UserAuthProvider>();
+    String? nameofUser = authProvider.nameofUser;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Slambook",
-          style: TextStyle(color: Color(0xFFfff4fc)), //title color
-        ),
-        backgroundColor: Color(0xFF10044c), //AppBar background color
-        iconTheme: IconThemeData(color: Colors.white), //3 lines icon color
-      ),
-      drawer: drawer(context), //DRAWER WIDGET
-      body: ListView(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    "My Friend's Slambook",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF10044c),
+      drawer: drawer(context, nameofUser), //drawer widget
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            title: Padding(
+              padding: const EdgeInsets.only(left: 17.0),
+              child: Text(
+                'Slambook',
+                style: TextStyle(
+                  fontFamily: 'Titan One',
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 15.0),
+              child: Builder(
+                builder: (context) {
+                  return IconButton(
+                    icon: Icon(Icons.menu, color: Colors.white, size: 32),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  );
+                },
+              ),
+            ),
+            backgroundColor: Color(0xFF101444), //background color of appbar
+            elevation: 0,
+            scrolledUnderElevation: 0.0,
+            toolbarHeight: 70, //height of appbar
+            titleSpacing: 0,
+            centerTitle: true,
+            floating: true,
+            pinned: true,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.only(top: 0.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            "My Friend's Slambook",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF101444),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  const FormSample(), // FormSample widget
+                ],
+              ),
             ),
           ),
-          const FormSample(), //formsample widget
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -54,57 +94,52 @@ class SecondPage extends StatelessWidget {
           );
         },
         child: Icon(Icons.qr_code_scanner),
-        backgroundColor: Color(0xFF10044c),
+        backgroundColor: Color(0xFF101444),
       ),
     );
   }
 
-  Widget drawer(BuildContext context) {
+  Widget drawer(BuildContext context, String? nameofUser) {
     return Drawer(
       child: ListView(
+        padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            child: Text(
-              "Exercise 7: Data Persistence using Firebase",
-              style: TextStyle(
-                color: Color(0xFF10044c), //drawer header text color
-                fontSize: 18,
-              ),
-            ),
             decoration: BoxDecoration(
-              color: Color(0xFFe8e4ec), //drawer header background color
+              color: pastelBlue, //background of the header, upper part
+            ),
+            child: Text(
+              nameofUser != null ? "Hello, $nameofUser!" : "Hello!",
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontFamily: 'Comic Sans MS',
+              ),
             ),
           ),
           ListTile(
-            title: Text(
-              "Slambook",
-              style: TextStyle(
-                color: Color(0xFF10044c), //drawer list tile text color
-              ),
-            ),
+            leading: Icon(Icons.book, color: button1), //slambook icon
+            title: Text('Slambook', style: TextStyle(color: textColor)),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text(
-              "Friends",
-              style: TextStyle(
-                color: Color(0xFF10044c), //drawer list tile text color
-              ),
-            ),
+            leading: Icon(Icons.people, color: button2),
+            title: Text('Friends', style: TextStyle(color: textColor)),
             onTap: () {
+              Navigator.pop(context);
               Navigator.pushNamed(context, '/todo');
             },
           ),
-          // ListTile(
-          //   title: const Text('Logout'),
-          //   onTap: () async {
-          //     //CHANGES
-          //     // await context.read<UserAuthProvider>().signOut();
-          //     // Navigator.pushReplacementNamed(context, '/login');
-          //   },
-          // ),
+          ListTile(
+            leading: Icon(Icons.logout, color: button3),
+            title: Text('Logout', style: TextStyle(color: textColor)),
+            onTap: () async {
+              await context.read<UserAuthProvider>().signOut(context);
+            },
+          ),
         ],
       ),
     );
@@ -156,6 +191,13 @@ class _FormSampleState extends State<FormSample> {
   final GlobalKey<FormState> formkey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    //initial value for radiomotto
+    radioMotto = _motto.isNotEmpty ? _motto.first : null;
+  }
+
+  @override
   void dispose() {
     nameController.dispose();
     nicknameController.dispose();
@@ -171,7 +213,7 @@ class _FormSampleState extends State<FormSample> {
       ageController.clear();
       isSingle = false;
       happinessLevel = 0;
-      radioMotto = null;
+      radioMotto = _motto.isNotEmpty ? _motto.first : null;
       dropdownvalue = "Makalipad";
       summaryText = ''; //clears summary text on reset
     });
@@ -191,7 +233,7 @@ class _FormSampleState extends State<FormSample> {
     });
   }
 
-  // Add this method to create a Todo object from the form fields and save it to Firestore
+  //savetofirestore method - creates a todo object from the form fields and save it to firestore
   void saveToFirestore() {
     if (formkey.currentState!.validate()) {
       formkey.currentState?.save();
@@ -217,88 +259,210 @@ class _FormSampleState extends State<FormSample> {
         key: formkey,
         child: Column(
           children: [
-            //NAME
             Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                controller: nameController,
-                validator: (val) {
-                  if (val == null || val.isEmpty) {
-                    return "Please enter a name";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                        color: Color(0xFF10044c)), //border color here
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Container(
+                width: 350, //width of name input field
+                child: TextFormField(
+                  controller: nameController,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return "Please enter a name";
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    isDense: true,
+                    labelText: 'Name',
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Lexend Deca',
+                      color: Color(0xD157636C),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Color(0x00E0E3E7),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.red,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.red,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF6F6F6),
+                    contentPadding:
+                        const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    prefixIcon: const Icon(
+                      Icons.person,
+                      color: Color(0xFF9B9B9C),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                        color: Color(0xFF10044c)), //focused border color
+                  style: const TextStyle(
+                    fontFamily: 'Lexend Deca',
+                    letterSpacing: 0,
                   ),
-                  contentPadding: const EdgeInsets.all(10),
-                  border: const OutlineInputBorder(),
-                  hintText: "Name",
-                  labelText: "Name",
+                  textAlign: TextAlign.start,
                 ),
               ),
             ),
-            //NICKNAME
+            // NICKNAME
             Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                controller: nicknameController,
-                validator: (val) {
-                  if (val == null || val.isEmpty) {
-                    return "Please enter a nickname";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                        color: Color(0xFF10044c)), //border color
+              padding: const EdgeInsets.only(bottom: 9),
+              child: Container(
+                width: 350, //width of nickname input field
+                child: TextFormField(
+                  controller: nicknameController,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return "Please enter a nickname";
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    isDense: true,
+                    labelText: 'Nickname',
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Lexend Deca',
+                      color: Color(0xD157636C),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Color(0x00E0E3E7),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.red,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.red,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF6F6F6),
+                    contentPadding:
+                        const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    prefixIcon: const Icon(
+                      Icons.person,
+                      color: Color(0xFF9B9B9C),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                        color: Color(0xFF10044c)), //focused border color
+                  style: const TextStyle(
+                    fontFamily: 'Lexend Deca',
+                    letterSpacing: 0,
                   ),
-                  contentPadding: const EdgeInsets.all(10),
-                  border: const OutlineInputBorder(),
-                  hintText: "Nickname",
-                  labelText: "Nickname",
+                  textAlign: TextAlign.start,
                 ),
               ),
             ),
-            //AGE & STATUS
+            // AGE & STATUS
             Padding(
               padding: const EdgeInsets.all(10),
               child: Row(
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: ageController,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return "Please enter an age";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: Color(0xFF10044c)), //border color
+                  SizedBox(
+                    width: 150, // width of age text input
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 0, left: 8),
+                      child: TextFormField(
+                        controller: ageController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return "Please enter an age";
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          isDense: true,
+                          labelText: 'Age',
+                          labelStyle: const TextStyle(
+                            fontFamily: 'Lexend Deca',
+                            color: Color(0xD157636C),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Color(0x00E0E3E7),
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.red,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.red,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF6F6F6),
+                          contentPadding: const EdgeInsetsDirectional.fromSTEB(
+                              32, 16, 16, 16),
+                          prefixIcon: const Icon(
+                            Icons.cake,
+                            color: Color(0xFF9B9B9C),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: Color(0xFF10044c)), //focused border color
+                        style: const TextStyle(
+                          fontFamily: 'Lexend Deca',
+                          letterSpacing: 0,
                         ),
-                        contentPadding: const EdgeInsets.all(10),
-                        border: const OutlineInputBorder(),
-                        hintText: "Age",
-                        labelText: "Age",
+                        textAlign: TextAlign.start,
                       ),
                     ),
                   ),
@@ -311,13 +475,14 @@ class _FormSampleState extends State<FormSample> {
                         isSingle = value;
                       });
                     },
-                    activeColor: Color(0xFF10044c), //active thumb color
-                    activeTrackColor: Color(0xFFe8e4ec), //active track color
+                    activeColor: Color(0xFF101444), // active thumb color
+                    activeTrackColor: Color(0xFFe8e4ec), // active track color
                   ),
                 ],
               ),
             ),
-            //HAPPINESS LEVEL
+
+            // HAPPINESS LEVEL
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -329,7 +494,7 @@ class _FormSampleState extends State<FormSample> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF10044c)),
+                        color: Color(0xFF101444)),
                   ),
                   const Text(
                     "On a scale of 0 (Hopeless) to 10 (Very Happy), how would you rate your current lifestyle?",
@@ -346,13 +511,13 @@ class _FormSampleState extends State<FormSample> {
                         happinessLevel = value.toInt();
                       });
                     },
-                    activeColor: Color(0xFF10044c), //slider active color here
+                    activeColor: Color(0xFF101444), //slider active color here
                   ),
                 ],
               ),
             ),
             SizedBox(height: 10), //vertical space
-            //SUPERPOWER
+            // SUPERPOWER
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -362,13 +527,13 @@ class _FormSampleState extends State<FormSample> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF10044c)),
+                        color: Color(0xFF101444)),
                   ),
                   const Text(
                     "If you were to have a superpower, what would it be?",
                   ),
                   Container(
-                    width: 450, //width of dropdown
+                    width: 350, //width of dropdown
                     child: DropdownButtonFormField(
                       value: dropdownvalue,
                       items: dropdownOptions.map((String item) {
@@ -389,7 +554,7 @@ class _FormSampleState extends State<FormSample> {
               ),
             ),
             SizedBox(height: 30), //vertical space
-            //MOTTO
+            // MOTTO
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -398,7 +563,7 @@ class _FormSampleState extends State<FormSample> {
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF10044c))),
+                          color: Color(0xFF101444))),
                   Column(
                     children: _motto.map((String motto) {
                       return RadioListTile<String>(
@@ -411,7 +576,7 @@ class _FormSampleState extends State<FormSample> {
                           });
                         },
                         activeColor:
-                            Color(0xFF10044c), //selected radio button color
+                            Color(0xFF101444), //selected radio button color
                         controlAffinity: ListTileControlAffinity
                             .trailing, //align radio buttons to right
                       );
@@ -421,7 +586,7 @@ class _FormSampleState extends State<FormSample> {
               ),
             ),
 
-            //SUBMIT & RESET BUTTON
+            // SUBMIT & RESET BUTTON
             Padding(
               padding: const EdgeInsets.all(10),
               child: Row(
@@ -433,7 +598,7 @@ class _FormSampleState extends State<FormSample> {
                       foregroundColor: WidgetStateProperty.all<Color>(
                           Colors.white), //text color
                       backgroundColor: WidgetStateProperty.all<Color>(
-                          Color(0xFF10044c)), //background color
+                          Color(0xFF101444)), //background color
                       overlayColor: WidgetStateProperty.all<Color>(
                           Colors.black.withOpacity(0.2)), //splash color
                     ),
@@ -443,7 +608,7 @@ class _FormSampleState extends State<FormSample> {
                     onPressed: resetForm,
                     style: ButtonStyle(
                       foregroundColor: WidgetStateProperty.all<Color>(
-                          Color(0xFF10044c)), //text color
+                          Color(0xFF10044c)), // Text color
                       backgroundColor: WidgetStateProperty.all<Color>(
                           Colors.white), //background color
                       overlayColor: WidgetStateProperty.all<Color>(
@@ -455,7 +620,7 @@ class _FormSampleState extends State<FormSample> {
               ),
             ),
 
-            //summary text
+            // Summary text
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(

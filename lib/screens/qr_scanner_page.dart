@@ -37,6 +37,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
             isSingle: data['isSingle'],
             happinessLevel: data['happinessLevel'],
             imageUrl: data['imageUrl'],
+            verified: true, //mark as verified
           );
 
           context.read<TodoListProvider>().addTodo(newFriend);
@@ -50,6 +51,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
             'isSingle': newFriend.isSingle,
             'happinessLevel': newFriend.happinessLevel,
             'imageUrl': newFriend.imageUrl,
+            'verified': newFriend.verified,
           });
 
           Navigator.pop(context);

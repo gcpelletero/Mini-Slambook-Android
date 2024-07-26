@@ -10,6 +10,7 @@ class Todo {
   String radioMotto;
   String superpower;
   String? imageUrl;
+  bool verified;
 
   Todo({
     this.id,
@@ -21,6 +22,7 @@ class Todo {
     required this.radioMotto,
     required this.superpower,
     this.imageUrl,
+    this.verified = false,
   });
 
   factory Todo.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class Todo {
       radioMotto: json['radioMotto'],
       superpower: json['superpower'],
       imageUrl: json['imageUrl'],
+      verified: json['verified'] ?? false,
     );
   }
 
@@ -53,6 +56,7 @@ class Todo {
       'radioMotto': todo.radioMotto,
       'superpower': todo.superpower,
       'imageUrl': todo.imageUrl,
+      'verified': todo.verified,
     };
   }
 }
